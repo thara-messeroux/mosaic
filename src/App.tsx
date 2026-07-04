@@ -1,121 +1,70 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
 import './App.css'
 
+// The three value pillars are data-driven to avoid repeating card markup.
+const PILLARS = [
+  {
+    title: 'Discover slowly',
+    text: 'Meet one thoughtful person at a time — no endless swiping.',
+  },
+  {
+    title: 'Reflect openly',
+    text: "Private reflections help you understand what you're really looking for.",
+  },
+  {
+    title: 'Connect gently',
+    text: 'Low-pressure challenges turn shared values into real closeness.',
+  },
+]
+
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="page">
+      <div className="container">
+        <header className="masthead">
+          <span className="wordmark">Mosaic</span>
+        </header>
 
-      <div className="ticks"></div>
+        <main>
+          <section className="hero">
+            <p className="eyebrow">A values-first dating app</p>
+            <h1 className="headline">
+              Meet slowly.
+              <br />
+              Connect deeply.
+            </h1>
+            <p className="tagline">Friendship with room for romance.</p>
+            <p className="lede">
+              Mosaic is for people seeking meaningful, long-term connection. We help
+              you begin with genuine friendship and shared values — and let romance
+              grow from there.
+            </p>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+            <div className="actions">
+              {/* Buttons don't navigate yet — routing comes in a later step. */}
+              <button type="button" className="btn btn-primary">
+                Join Mosaic
+              </button>
+              <button type="button" className="btn btn-secondary">
+                I already have an account
+              </button>
+            </div>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+            <p className="privacy">
+              Your reflections and choices always stay private.
+            </p>
+          </section>
+
+          <section className="pillars" aria-label="How Mosaic works">
+            {PILLARS.map((pillar) => (
+              <article key={pillar.title} className="card">
+                <h2 className="card-title">{pillar.title}</h2>
+                <p className="card-text">{pillar.text}</p>
+              </article>
+            ))}
+          </section>
+        </main>
+      </div>
+    </div>
   )
 }
 
