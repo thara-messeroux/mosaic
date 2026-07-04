@@ -46,6 +46,7 @@ function ActivePage({
   }
 }
 
+// The side nav is only visible on desktop, but we render it always for simplicity.
 function SideNav({ active, onSelect }: { active: Section; onSelect: (s: Section) => void }) {
   return (
     <aside className="sidenav">
@@ -73,6 +74,7 @@ function SideNav({ active, onSelect }: { active: Section; onSelect: (s: Section)
   )
 }
 
+// The bottom nav is only visible on mobile, but we render it always for simplicity.
 function BottomNav({ active, onSelect }: { active: Section; onSelect: (s: Section) => void }) {
   return (
     <nav className="bottomnav" aria-label="Primary">

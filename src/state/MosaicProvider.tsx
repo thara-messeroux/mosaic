@@ -3,6 +3,8 @@ import { createContext, useContext, useState, type ReactNode } from 'react'
 // Shared local app state (profile + reflections + challenges) so pages can read
 // and mutate the same data without prop-drilling. All in-memory mock data.
 
+// The Profile interface defines the shape of the user's profile data, 
+// including personal information, intent, values, connection style, and a prompt.
 export interface Profile {
   firstName: string
   age: string
@@ -15,6 +17,9 @@ export interface Profile {
   prompt: string
 }
 
+// The Reflection interface defines the shape of a reflection, 
+// including an id, prompt, body, date, optional lens, and a flag 
+// indicating if it is the user's own reflection.
 export interface Reflection {
   id: string
   prompt: string
@@ -24,6 +29,9 @@ export interface Reflection {
   isOwn: boolean
 }
 
+// The Challenge interface defines the shape of a challenge, 
+// including an id, title, category, description, duration, 
+// and a flag indicating if it is the user's own challenge.
 export interface Challenge {
   id: string
   title: string
@@ -33,6 +41,9 @@ export interface Challenge {
   isOwn: boolean
 }
 
+// The MosaicStore interface defines the shape of the shared state 
+// and the functions to manipulate it, including profile, reflections, challenges, 
+// and their respective add, update, and delete functions.
 interface MosaicStore {
   profile: Profile
   setProfile: (p: Profile) => void
@@ -61,6 +72,7 @@ const initialProfile: Profile = {
   prompt: 'we can be quiet together and still feel completely at ease — no performance, just presence.',
 }
 
+// The initialReflections array contains some mock reflections to populate the app initially.
 const initialReflections: Reflection[] = [
   {
     id: uid(),
@@ -79,6 +91,7 @@ const initialReflections: Reflection[] = [
   },
 ]
 
+// The initialChallenges array contains some mock challenges to populate the app initially.
 const initialChallenges: Challenge[] = [
   {
     id: uid(),
@@ -108,6 +121,7 @@ const initialChallenges: Challenge[] = [
   },
 ]
 
+// The MosaicContext is a React context that holds the shared state and functions defined in MosaicStore.
 const MosaicContext = createContext<MosaicStore | null>(null)
 
 export function MosaicProvider({ children }: { children: ReactNode }) {
@@ -149,6 +163,8 @@ export function MosaicProvider({ children }: { children: ReactNode }) {
   )
 }
 
+// The useMosaic hook provides access to the MosaicContext, 
+// allowing components to read and manipulate the shared state.
 export function useMosaic() {
   const ctx = useContext(MosaicContext)
   if (!ctx) throw new Error('useMosaic must be used within MosaicProvider')

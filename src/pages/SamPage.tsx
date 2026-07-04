@@ -10,6 +10,8 @@ interface Question {
   chips: string[]
 }
 
+// The questions are a set of gentle prompts that Sam will ask the user to reflect on. 
+// Each question has a set of suggested answers (chips) that the user can select from, or they can write their own answer.
 const QUESTIONS: Question[] = [
   {
     text: 'When do you feel most at ease with another person?',
@@ -38,6 +40,7 @@ interface Turn {
   a: string
 }
 
+// The Sam page is a private reflection companion that asks the user a series of gentle questions and collects their answers.
 function SamPage({ onNavigate }: { onNavigate: (s: Section) => void }) {
   const [step, setStep] = useState(0)
   const [turns, setTurns] = useState<Turn[]>([])
@@ -172,6 +175,8 @@ function SamPage({ onNavigate }: { onNavigate: (s: Section) => void }) {
   )
 }
 
+// The SamAvatar component renders a small icon representing Sam, the reflection companion. 
+// It is used in the chat interface to indicate messages from Sam.
 function SamAvatar() {
   return (
     <span className="sam-avatar" aria-hidden="true">
@@ -198,6 +203,7 @@ function LensResult({
     },
   ]
 
+  // The saveToReflections function saves the generated connection lens to the user's reflections and shows a toast notification.
   const saveToReflections = () => {
     toast({ title: 'Saved to your reflections' })
     onNavigate('reflections')

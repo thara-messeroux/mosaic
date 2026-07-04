@@ -11,6 +11,7 @@ import { Filters, emptyFilters, matchesFilters, type FilterState } from '../comp
 import { useToast } from '../components/Toast'
 import ProfileDetailPage from './ProfileDetailPage'
 
+// The discover page shows a deck of profiles to swipe through, with filters and a detail view.
 function DiscoverPage({ onNavigate }: { onNavigate: (s: Section) => void }) {
   const toast = useToast()
   const [filters, setFilters] = useState<FilterState>(emptyFilters)

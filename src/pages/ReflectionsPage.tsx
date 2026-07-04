@@ -7,6 +7,7 @@ import { useMosaic } from '../state/MosaicProvider'
 import { useToast } from '../components/Toast'
 import ReflectionEditorPage from './ReflectionEditorPage'
 
+// The reflections page shows the user's own reflections and a button to create a new one.
 function ReflectionsPage({ onNavigate }: { onNavigate: (s: Section) => void }) {
   const { reflections, deleteReflection } = useMosaic()
   const toast = useToast()
@@ -23,6 +24,7 @@ function ReflectionsPage({ onNavigate }: { onNavigate: (s: Section) => void }) {
     )
   }
 
+  // The remove function deletes a reflection and shows a toast notification.
   const remove = (id: string) => {
     deleteReflection(id)
     toast({ title: 'Reflection deleted' })

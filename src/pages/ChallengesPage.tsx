@@ -17,6 +17,7 @@ import { useToast } from '../components/Toast'
 const CATEGORIES = ['Curiosity', 'Kindness', 'Honesty', 'Presence', 'Play']
 const DURATIONS = ['1 day', '3 days', '7 days']
 
+// The challenges page shows the user's own challenges and a button to create a new one.
 function ChallengesPage({ onNavigate }: { onNavigate: (s: Section) => void }) {
   const { challenges, addChallenge, deleteChallenge } = useMosaic()
   const toast = useToast()
@@ -72,6 +73,7 @@ function ChallengesPage({ onNavigate }: { onNavigate: (s: Section) => void }) {
   )
 }
 
+// The create challenge dialog is a modal sheet with a form to create a new challenge.
 function CreateChallengeDialog({
   onClose,
   onCreate,

@@ -26,6 +26,8 @@ export const emptyFilters: FilterState = {
   values: [],
 }
 
+// The groups of filters, in order. Each group has a key (the property on FilterState),
+// a label, and the options to choose from.
 const GROUPS: { key: keyof FilterState; label: string; options: string[] }[] = [
   { key: 'country', label: 'Current country', options: COUNTRIES },
   { key: 'originallyFrom', label: 'Originally from', options: COUNTRIES },
@@ -48,6 +50,7 @@ export function matchesFilters(m: Member, f: FilterState): boolean {
   )
 }
 
+// The filters component is a button that opens a modal sheet with the filter options.
 export function Filters({
   filters,
   setFilters,

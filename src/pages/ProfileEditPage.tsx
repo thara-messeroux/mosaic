@@ -14,6 +14,7 @@ import {
 import { useMosaic } from '../state/MosaicProvider'
 import { useToast } from '../components/Toast'
 
+// The profile edit page shows a form to edit the user's own profile, with a save button.
 function ProfileEditPage({ onNavigate }: { onNavigate: (s: Section) => void }) {
   const { profile, setProfile } = useMosaic()
   const toast = useToast()
