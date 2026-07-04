@@ -39,11 +39,13 @@ function ProfileDetailPage({
       <TopBar title={`${member.firstName}'s profile`} showBack onBack={onBack} />
       <main className="wrap page-main">
         <ProfileCard member={member} />
-        <ActionBar onPass={onPass} onSave={onSave} />
         <p className="note">
           <Icon name="lock" size={14} />
           Your choices stay private.
         </p>
+        <div className="sticky-actions">
+          <ActionBar onPass={onPass} onSave={onSave} />
+        </div>
       </main>
     </div>
   )

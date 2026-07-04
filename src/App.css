@@ -178,9 +178,14 @@
 
 /* ---------- App shell ---------- */
 
+/* Fixed viewport-height frame so .shell-content becomes a real scroll area
+   (this is what makes the sticky Pass/Save bar work). 100vh is the fallback;
+   100dvh handles mobile browser chrome where supported. */
 .shell {
   display: flex;
-  min-height: 100svh;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
   background: var(--bg);
 }
 
@@ -191,17 +196,22 @@
   min-width: 0;
 }
 
+/* min-height: 0 lets this flex child shrink below its content so it can scroll
+   internally instead of pushing the whole page to scroll. */
 .shell-content {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
 }
 
-/* Desktop left sidebar — hidden on mobile. */
+/* Desktop left sidebar — hidden on mobile. Scrolls on its own if the nav ever
+   grows taller than the viewport (the shell itself clips). */
 .sidenav {
   display: none;
   width: 16rem;
   flex-shrink: 0;
   flex-direction: column;
+  overflow-y: auto;
   border-right: 1px solid var(--border);
   background: var(--bg);
 }
@@ -753,6 +763,23 @@
 }
 
 /* ---------- Action bar ---------- */
+
+/* Sticky wrapper keeps Pass / Save near the viewport bottom while the profile
+   scrolls. Sticky (not fixed) so it stays inside the content column and above
+   the mobile bottom nav. Full-bleed within the centered .wrap padding. Light,
+   translucent ivory + backdrop blur (no shadow) keeps it readable over
+   scrolling content without a heavy tray look — matching the reference. */
+.sticky-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  margin-inline: calc(-1 * var(--space-4));
+  padding: var(--space-3) var(--space-4);
+  background: rgba(250, 245, 236, 0.92);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid var(--border);
+}
 
 .actionbar {
   display: flex;

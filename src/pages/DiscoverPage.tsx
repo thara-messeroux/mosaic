@@ -109,7 +109,9 @@ function DiscoverPage({ onNavigate }: { onNavigate: (s: Section) => void }) {
                 </div>
               </div>
             ) : (
-              <ActionBar onPass={pass} onSave={() => save(current.firstName)} />
+              <div className="sticky-actions">
+                <ActionBar onPass={pass} onSave={() => save(current.firstName)} />
+              </div>
             )}
 
             <FutureConcepts />
