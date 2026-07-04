@@ -145,3 +145,199 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ---------- App shell ---------- */
+
+.shell {
+  display: flex;
+  min-height: 100svh;
+  background: var(--bg);
+}
+
+.shell-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.shell-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Desktop left sidebar — hidden on mobile. */
+.sidenav {
+  display: none;
+  width: 16rem;
+  flex-shrink: 0;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.sidenav-brand {
+  padding: var(--space-4);
+}
+
+.sidenav-tagline {
+  margin-top: 0.25rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.sidenav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0 var(--space-2);
+}
+
+.sidenav-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 2.75rem;
+  padding: 0.5rem var(--space-2);
+  border: none;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.sidenav-link:hover {
+  background: var(--blush-soft);
+  color: var(--plum);
+}
+
+/* Active state: blush accent + plum text. */
+.sidenav-link[aria-current='page'] {
+  background: var(--accent);
+  color: var(--plum);
+  font-weight: 500;
+}
+
+/* Top bar shows the current section title. */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.topbar-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-4);
+}
+
+/* The wordmark only shows on mobile; desktop already has it in the sidebar. */
+.topbar-brand {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--plum);
+}
+
+.topbar-title {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* Quiet placeholder content. */
+.placeholder {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-4);
+}
+
+.placeholder-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+
+.placeholder-text {
+  margin-top: var(--space-2);
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+/* Mobile bottom nav — hidden on desktop. */
+.bottomnav {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.bottomnav-link {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.25rem;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.bottomnav-link[aria-current='page'] {
+  color: var(--plum);
+  font-weight: 500;
+}
+
+.bottomnav-label {
+  font-size: 0.7rem;
+}
+
+/* Shared icon sizing for both navs. */
+.nav-icon {
+  display: inline-flex;
+}
+
+.nav-icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Keyboard focus ring, consistent with the buttons. */
+.sidenav-link:focus-visible,
+.bottomnav-link:focus-visible {
+  outline: 2px solid var(--plum);
+  outline-offset: -2px;
+}
+
+/* Desktop: show the sidebar, hide the bottom nav and the mobile wordmark. */
+@media (min-width: 1024px) {
+  .sidenav {
+    display: flex;
+  }
+
+  .bottomnav {
+    display: none;
+  }
+
+  .topbar-brand {
+    display: none;
+  }
+
+  .topbar-title {
+    font-family: var(--font-serif);
+    font-size: 1.4rem;
+    color: var(--plum);
+  }
+}
