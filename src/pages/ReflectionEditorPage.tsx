@@ -1,0 +1,118 @@
+import { useState } from 'react'
+import type { Section } from '../components/navigation'
+import { Icon } from '../components/Icon'
+import { TopBar } from '../components/TopBar'
+import { Field, TextArea, PrimaryButton, SecondaryButton } from '../components/Primitives'
+import { ConnectionLens } from '../components/ConnectionLens'
+import { useMosaic } from '../state/MosaicProvider'
+import { useToast } from '../components/Toast'
+
+const PROMPTS = [
+  'A friendship becomes something more when…',
+  'What does emotional honesty look like to me?',
+  'When do I feel most at ease with another person?',
+  'What am I hoping to grow toward right now?',
+]
+
+// Local mock "AI" output — a random line, no real model.
+const LENS_LINES = [
+  'This reflection leans on emotional safety and slow trust.',
+  "There's a gentle theme of curiosity and openness here.",
+  'You seem to value presence over performance.',
+]
+
+function ReflectionEditorPage({
+  id,
+  onDone,
+  onNavigate,
+}: {
+  id?: string
+  onDone: () => void
+  onNavigate: (s: Section) => void
+}) {
+  const { reflections, addReflection, updateReflection } = useMosaic()
+  const toast = useToast()
+  const existing = reflections.find((r) => r.id === id)
+  const isEdit = Boolean(existing)
+
+  const [prompt, setPrompt] = useState(existing?.prompt ?? PROMPTS[0])
+  const [body, setBody] = useState(existing?.body ?? '')
+  const [lens, setLens] = useState(existing?.lens)
+
+  const generateLens = () => {
+    if (!body.trim()) {
+      toast({ title: 'Write a little first', description: 'The Lens reflects on your own words.' })
+      return
+    }
+    setLens(LENS_LINES[Math.floor(Math.random() * LENS_LINES.length)])
+    toast({ title: 'Connection Lens ready' })
+  }
+
+  const save = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (isEdit && existing) {
+      updateReflection(existing.id, { prompt, body, lens })
+    } else {
+      addReflection({ prompt, body, lens })
+    }
+    toast({ title: 'Reflection saved' })
+    onDone()
+  }
+
+  return (
+    <div>
+      <TopBar title={isEdit ? 'Edit reflection' : 'New reflection'} showBack onBack={onDone} />
+
+      <form onSubmit={save} className="wrap page-main">
+        <div className="guided">
+          <p className="section-label">Guided prompt</p>
+          <div className="stack">
+            {PROMPTS.map((p) => (
+              <button
+                key={p}
+                type="button"
+                onClick={() => setPrompt(p)}
+                aria-pressed={prompt === p}
+                className={`guided-option ${prompt === p ? 'is-selected' : ''}`}
+              >
+                {p}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <Field label="Your reflection">
+          <TextArea
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            placeholder="Take your time. Write what feels honest."
+            className="tall"
+          />
+        </Field>
+
+        {lens && <ConnectionLens copy={lens} />}
+
+        <div className="btn-row">
+          <SecondaryButton type="button" onClick={() => onNavigate('sam')}>
+            <Icon name="message" />
+            Talk with Sam
+          </SecondaryButton>
+          <SecondaryButton type="button" onClick={generateLens}>
+            <Icon name="sparkles" />
+            Generate AI Connection Lens
+          </SecondaryButton>
+        </div>
+
+        <p className="note note-left">
+          <Icon name="info" size={16} />
+          The Connection Lens is a gentle reflection aid. It does not provide relationship
+          advice or make decisions for you.
+        </p>
+
+        <PrimaryButton type="submit">Save reflection</PrimaryButton>
+      </form>
+    </div>
+  )
+}
+
+export default ReflectionEditorPage

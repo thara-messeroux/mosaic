@@ -1,5 +1,3 @@
-import './App.css'
-
 // The three value pillars are data-driven to avoid repeating card markup.
 const PILLARS = [
   {
@@ -16,7 +14,7 @@ const PILLARS = [
   },
 ]
 
-// onEnter switches the app from the landing screen into the app shell.
+// onEnter moves from the landing screen to the account screen.
 function LandingPage({ onEnter }: { onEnter: () => void }) {
   return (
     <div className="page">

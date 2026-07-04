@@ -1,19 +1,28 @@
 import { useState } from 'react'
-import LandingPage from './LandingPage'
-import AppShell from './AppShell'
+import { MosaicProvider } from './state/MosaicProvider'
+import { ToastProvider } from './components/Toast'
+import LandingPage from './pages/LandingPage'
+import AuthPage from './pages/AuthPage'
+import AppShell from './components/AppShell'
 import './App.css'
 
-type Screen = 'landing' | 'app'
+type Screen = 'landing' | 'auth' | 'app'
 
 function App() {
-  // Simple local toggle between the landing screen and the app shell (no router yet).
+  // Top-level screen switch (no router): landing → auth → app shell.
   const [screen, setScreen] = useState<Screen>('landing')
 
-  if (screen === 'app') {
-    return <AppShell />
-  }
-
-  return <LandingPage onEnter={() => setScreen('app')} />
+  return (
+    <MosaicProvider>
+      <ToastProvider>
+        {screen === 'landing' && <LandingPage onEnter={() => setScreen('auth')} />}
+        {screen === 'auth' && (
+          <AuthPage onAuthed={() => setScreen('app')} onBack={() => setScreen('landing')} />
+        )}
+        {screen === 'app' && <AppShell />}
+      </ToastProvider>
+    </MosaicProvider>
+  )
 }
 
 export default App
