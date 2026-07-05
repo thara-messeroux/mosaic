@@ -1,12 +1,18 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 
 export type ProfileStatus = 'loading' | 'missing' | 'present'
 
 // Checks whether the signed-in user already has a profiles row, so first-time
-// users can be routed to complete their profile. Read-only (no schema change).
-export function useHasProfile(userId: string | undefined): ProfileStatus {
+// users can be routed to complete their profile. markPresent() lets a successful
+// save finish onboarding within the same session. Read-only (no schema change).
+export function useHasProfile(userId: string | undefined): {
+  status: ProfileStatus
+  markPresent: () => void
+} {
   const [status, setStatus] = useState<ProfileStatus>('loading')
+
+  const markPresent = useCallback(() => setStatus('present'), [])
 
   useEffect(() => {
     if (!userId) return
@@ -27,5 +33,5 @@ export function useHasProfile(userId: string | undefined): ProfileStatus {
     }
   }, [userId])
 
-  return status
+  return { status, markPresent }
 }

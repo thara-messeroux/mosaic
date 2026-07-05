@@ -36,7 +36,7 @@ export const members: Member[] = [
         'we can be quiet together and still feel completely at ease — no performance, just presence.',
     },
     lens: 'Possible shared values: curiosity, kindness, and emotional honesty.',
-    photo: img('1759854881701-2aa0dc64fc7d'),
+    photo: 'https://images.pexels.com/photos/29282975/pexels-photo-29282975.jpeg',
   },
   {
     id: 'diego',

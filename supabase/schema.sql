@@ -99,6 +99,16 @@ create trigger set_updated_at before update on public.reflections
   for each row execute function public.set_updated_at();
 
 -- ============================================================
+-- Authenticated app permissions
+-- Table-level grants for the signed-in role. RLS below still constrains
+-- every row; these grants just allow the operations to be attempted.
+-- ============================================================
+grant select, insert, update, delete on public.profiles          to authenticated;
+grant select, insert, update, delete on public.reflections        to authenticated;
+grant select, insert, update, delete on public.challenges         to authenticated;
+grant select, insert, update, delete on public.profile_decisions  to authenticated;
+
+-- ============================================================
 -- Row Level Security
 -- ============================================================
 alter table public.profiles          enable row level security;

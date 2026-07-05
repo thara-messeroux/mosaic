@@ -1257,6 +1257,48 @@
   background: var(--accent);
 }
 
+.photo-btn:focus-visible {
+  outline: 2px solid var(--plum);
+  outline-offset: 2px;
+}
+
+.photo-btn:disabled {
+  cursor: default;
+}
+
+/* The avatar fills the round button; overflow clips it to the circle. */
+.photo-btn {
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+}
+
+.photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Uploading overlay over the photo button. */
+.photo-uploading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(61, 36, 56, 0.5);
+  color: var(--ivory);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.photo-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
 /* ---------- Future concepts ---------- */
 
 .future {

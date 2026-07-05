@@ -11,7 +11,13 @@ import ProfileEditPage from '../pages/ProfileEditPage'
 // The persistent frame: desktop sidebar + mobile bottom nav around the active
 // section's page. Navigation is local state — no router.
 // firstRun (no profile yet) opens on the Profile section for onboarding.
-function AppShell({ firstRun = false }: { firstRun?: boolean }) {
+function AppShell({
+  firstRun = false,
+  onProfileSaved,
+}: {
+  firstRun?: boolean
+  onProfileSaved?: () => void
+}) {
   const [active, setActive] = useState<Section>(firstRun ? 'profile' : 'discover')
 
   return (
@@ -19,7 +25,12 @@ function AppShell({ firstRun = false }: { firstRun?: boolean }) {
       <SideNav active={active} onSelect={setActive} />
       <div className="shell-main">
         <div className="shell-content">
-          <ActivePage active={active} onNavigate={setActive} firstRun={firstRun} />
+          <ActivePage
+            active={active}
+            onNavigate={setActive}
+            firstRun={firstRun}
+            onProfileSaved={onProfileSaved}
+          />
         </div>
         <BottomNav active={active} onSelect={setActive} />
       </div>
@@ -31,10 +42,12 @@ function ActivePage({
   active,
   onNavigate,
   firstRun,
+  onProfileSaved,
 }: {
   active: Section
   onNavigate: (s: Section) => void
   firstRun: boolean
+  onProfileSaved?: () => void
 }) {
   switch (active) {
     case 'discover':
@@ -46,7 +59,13 @@ function ActivePage({
     case 'sam':
       return <SamPage onNavigate={onNavigate} />
     case 'profile':
-      return <ProfileEditPage onNavigate={onNavigate} onboarding={firstRun} />
+      return (
+        <ProfileEditPage
+          onNavigate={onNavigate}
+          onboarding={firstRun}
+          onProfileSaved={onProfileSaved}
+        />
+      )
   }
 }
 
