@@ -2,19 +2,99 @@ import { useState } from 'react'
 import { Icon } from '../components/Icon'
 import { Field, TextInput, PrimaryButton } from '../components/Primitives'
 import { useToast } from '../components/Toast'
+import { useAuth } from '../state/AuthProvider'
 
-// Create-account / log-in UI. Local only — submitting just enters the app.
-function AuthPage({ onAuthed, onBack }: { onAuthed: () => void; onBack: () => void }) {
+type Mode = 'signup' | 'login'
+
+// Turns Supabase auth errors into gentle, human messages.
+function friendlyError(message: string, mode: Mode): string {
+  const m = message.toLowerCase()
+  if (m.includes('invalid login credentials')) return "That email or password doesn't match."
+  if (m.includes('already registered') || m.includes('already been registered'))
+    return 'This email is already registered — try signing in.'
+  if (m.includes('email not confirmed'))
+    return 'Please confirm your email first — check your inbox.'
+  if (m.includes('password')) return 'Please use a password with at least 8 characters.'
+  return mode === 'signup'
+    ? "We couldn't create your account. Please try again."
+    : "We couldn't sign you in. Please try again."
+}
+
+function AuthPage({ mode: initialMode, onBack }: { mode: Mode; onBack: () => void }) {
   const toast = useToast()
-  const [mode, setMode] = useState<'signup' | 'login'>('signup')
+  const { signUpWithPassword, signInWithPassword } = useAuth()
+  const [mode, setMode] = useState<Mode>(initialMode)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [confirmSent, setConfirmSent] = useState(false)
 
-  const submit = (e: React.FormEvent) => {
+  const emailValid = /\S+@\S+\.\S+/.test(email)
+  const passwordValid = password.length >= 8
+  const canSubmit = emailValid && passwordValid && !submitting
+
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!canSubmit) return
+    setSubmitting(true)
+    setError(null)
+
+    const action = mode === 'signup' ? signUpWithPassword : signInWithPassword
+    const { error: authError, needsEmailConfirmation } = await action(email, password)
+    setSubmitting(false)
+
+    if (authError) {
+      setError(friendlyError(authError.message, mode))
+      return
+    }
+    if (mode === 'signup' && needsEmailConfirmation) {
+      setConfirmSent(true)
+      return
+    }
+    // Otherwise the session updates and the app routes automatically.
     toast({
       title: mode === 'signup' ? 'Welcome to Mosaic' : 'Welcome back',
       description: "Let's set up your space to connect.",
     })
-    onAuthed()
+  }
+
+  const switchMode = () => {
+    setMode(mode === 'signup' ? 'login' : 'signup')
+    setError(null)
+  }
+
+  // Email-confirmation state — shown after a sign-up that needs verification.
+  if (confirmSent) {
+    return (
+      <div className="page">
+        <div className="auth-wrap">
+          <button type="button" className="link-btn auth-back" onClick={onBack}>
+            <Icon name="chevron-left" size={16} /> Back
+          </button>
+          <div className="auth-confirm">
+            <span className="auth-confirm-icon">
+              <Icon name="message" size={24} />
+            </span>
+            <h1 className="auth-title">Check your inbox</h1>
+            <p className="muted">
+              We sent a confirmation link to <strong>{email}</strong>. Open it to finish
+              creating your account — this page will continue once you're confirmed.
+            </p>
+            <button
+              type="button"
+              className="link-btn auth-switch"
+              onClick={() => {
+                setConfirmSent(false)
+                setPassword('')
+              }}
+            >
+              Use a different email
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -36,9 +116,17 @@ function AuthPage({ onAuthed, onBack }: { onAuthed: () => void; onBack: () => vo
           </p>
         </header>
 
-        <form onSubmit={submit} className="stack">
+        <form onSubmit={submit} className="stack" noValidate>
           <Field label="Email">
-            <TextInput type="email" required placeholder="you@example.com" autoComplete="email" />
+            <TextInput
+              type="email"
+              required
+              placeholder="you@example.com"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              aria-invalid={email.length > 0 && !emailValid}
+            />
           </Field>
           <Field label="Password">
             <TextInput
@@ -46,10 +134,32 @@ function AuthPage({ onAuthed, onBack }: { onAuthed: () => void; onBack: () => vo
               required
               placeholder="••••••••"
               autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              aria-invalid={password.length > 0 && !passwordValid}
+              aria-describedby="password-hint"
             />
           </Field>
-          <PrimaryButton type="submit">
-            {mode === 'signup' ? 'Create account' : 'Log in'}
+          {mode === 'signup' && (
+            <p id="password-hint" className="field-hint">
+              At least 8 characters.
+            </p>
+          )}
+
+          {error && (
+            <p className="auth-error" role="alert">
+              {error}
+            </p>
+          )}
+
+          <PrimaryButton type="submit" disabled={!canSubmit}>
+            {submitting
+              ? mode === 'signup'
+                ? 'Creating account…'
+                : 'Signing in…'
+              : mode === 'signup'
+                ? 'Create account'
+                : 'Log in'}
           </PrimaryButton>
         </form>
 
@@ -69,11 +179,7 @@ function AuthPage({ onAuthed, onBack }: { onAuthed: () => void; onBack: () => vo
           Continue with Google
         </button>
 
-        <button
-          type="button"
-          className="link-btn auth-switch"
-          onClick={() => setMode(mode === 'signup' ? 'login' : 'signup')}
-        >
+        <button type="button" className="link-btn auth-switch" onClick={switchMode}>
           {mode === 'signup'
             ? 'Already have an account? Log in'
             : 'New to Mosaic? Create an account'}

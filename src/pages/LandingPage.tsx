@@ -14,8 +14,8 @@ const PILLARS = [
   },
 ]
 
-// onEnter moves from the landing screen to the account screen.
-function LandingPage({ onEnter }: { onEnter: () => void }) {
+// onJoin opens the account screen in sign-up mode; onSignIn in log-in mode.
+function LandingPage({ onJoin, onSignIn }: { onJoin: () => void; onSignIn: () => void }) {
   return (
     <div className="page">
       <div className="container">
@@ -39,10 +39,10 @@ function LandingPage({ onEnter }: { onEnter: () => void }) {
             </p>
 
             <div className="actions">
-              <button type="button" className="btn btn-primary" onClick={onEnter}>
+              <button type="button" className="btn btn-primary" onClick={onJoin}>
                 Join Mosaic
               </button>
-              <button type="button" className="btn btn-secondary" onClick={onEnter}>
+              <button type="button" className="btn btn-secondary" onClick={onSignIn}>
                 I already have an account
               </button>
             </div>

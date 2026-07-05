@@ -1571,3 +1571,129 @@
   font-size: 0.8rem;
   opacity: 0.85;
 }
+
+/* ---------- Auth (Phase 2) ---------- */
+
+/* Minimal boot / loading splash. */
+.splash {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 100svh;
+  background: var(--bg);
+}
+
+.splash-text {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* Inline password hint + validation/error messaging. */
+.field-hint {
+  margin-top: -0.25rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.auth-error {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--danger);
+  border-radius: var(--radius);
+  background: rgba(179, 80, 106, 0.08);
+  color: var(--danger);
+  font-size: 0.85rem;
+}
+
+/* Highlight invalid inputs. */
+.input[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+/* Email-confirmation panel. */
+.auth-confirm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: var(--space-5) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--card);
+  text-align: center;
+}
+
+.auth-confirm-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  color: var(--plum);
+}
+
+/* Sidebar footer: signed-in email + sign out (desktop). */
+.sidenav-foot {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding: var(--space-4);
+  border-top: 1px solid var(--border);
+}
+
+.sidenav-email {
+  color: var(--muted);
+  font-size: 0.8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.signout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--plum);
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.signout-btn:hover {
+  background: var(--blush-soft);
+}
+
+.signout-btn:focus-visible {
+  outline: 2px solid var(--plum);
+  outline-offset: 2px;
+}
+
+/* Sign-out area at the bottom of the Profile page (all viewports). */
+.account-foot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding-bottom: var(--space-6);
+}
+
+/* Gentle first-run onboarding note. */
+.onboarding-note {
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--blush-soft);
+  color: var(--plum-soft);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}

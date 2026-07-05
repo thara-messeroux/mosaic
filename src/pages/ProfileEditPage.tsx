@@ -12,11 +12,20 @@ import {
   PrimaryButton,
 } from '../components/Primitives'
 import { useMosaic } from '../state/MosaicProvider'
+import { useAuth } from '../state/AuthProvider'
 import { useToast } from '../components/Toast'
 
 // The profile edit page shows a form to edit the user's own profile, with a save button.
-function ProfileEditPage({ onNavigate }: { onNavigate: (s: Section) => void }) {
+// onboarding=true is the gentle first-run state shown right after sign-up.
+function ProfileEditPage({
+  onNavigate,
+  onboarding = false,
+}: {
+  onNavigate: (s: Section) => void
+  onboarding?: boolean
+}) {
   const { profile, setProfile } = useMosaic()
+  const { user, signOut } = useAuth()
   const toast = useToast()
   const [form, setForm] = useState(profile)
 
@@ -43,9 +52,16 @@ function ProfileEditPage({ onNavigate }: { onNavigate: (s: Section) => void }) {
 
   return (
     <div>
-      <TopBar title="Your profile" />
+      <TopBar title={onboarding ? 'Complete your profile' : 'Your profile'} />
 
       <form onSubmit={save} className="wrap page-main">
+        {onboarding && (
+          <p className="onboarding-note">
+            Welcome to Mosaic. Take a moment to complete your profile so others can meet
+            the real you — you can always refine it later.
+          </p>
+        )}
+
         <div className="photo-block">
           <button
             type="button"
@@ -143,6 +159,18 @@ function ProfileEditPage({ onNavigate }: { onNavigate: (s: Section) => void }) {
 
         <PrimaryButton type="submit">Save profile</PrimaryButton>
       </form>
+
+      <div className="wrap account-foot">
+        {user?.email && (
+          <p className="muted small">
+            Signed in as <strong>{user.email}</strong>
+          </p>
+        )}
+        <button type="button" className="pill-btn" onClick={signOut}>
+          <Icon name="lock" size={16} />
+          Sign out
+        </button>
+      </div>
     </div>
   )
 }

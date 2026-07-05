@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Icon } from './Icon'
 import { NAV_ITEMS, type Section } from './navigation'
+import { useAuth } from '../state/AuthProvider'
 import DiscoverPage from '../pages/DiscoverPage'
 import ReflectionsPage from '../pages/ReflectionsPage'
 import ChallengesPage from '../pages/ChallengesPage'
@@ -9,15 +10,16 @@ import ProfileEditPage from '../pages/ProfileEditPage'
 
 // The persistent frame: desktop sidebar + mobile bottom nav around the active
 // section's page. Navigation is local state — no router.
-function AppShell() {
-  const [active, setActive] = useState<Section>('discover')
+// firstRun (no profile yet) opens on the Profile section for onboarding.
+function AppShell({ firstRun = false }: { firstRun?: boolean }) {
+  const [active, setActive] = useState<Section>(firstRun ? 'profile' : 'discover')
 
   return (
     <div className="shell">
       <SideNav active={active} onSelect={setActive} />
       <div className="shell-main">
         <div className="shell-content">
-          <ActivePage active={active} onNavigate={setActive} />
+          <ActivePage active={active} onNavigate={setActive} firstRun={firstRun} />
         </div>
         <BottomNav active={active} onSelect={setActive} />
       </div>
@@ -28,9 +30,11 @@ function AppShell() {
 function ActivePage({
   active,
   onNavigate,
+  firstRun,
 }: {
   active: Section
   onNavigate: (s: Section) => void
+  firstRun: boolean
 }) {
   switch (active) {
     case 'discover':
@@ -42,12 +46,14 @@ function ActivePage({
     case 'sam':
       return <SamPage onNavigate={onNavigate} />
     case 'profile':
-      return <ProfileEditPage onNavigate={onNavigate} />
+      return <ProfileEditPage onNavigate={onNavigate} onboarding={firstRun} />
   }
 }
 
 // The side nav is only visible on desktop, but we render it always for simplicity.
 function SideNav({ active, onSelect }: { active: Section; onSelect: (s: Section) => void }) {
+  const { user, signOut } = useAuth()
+
   return (
     <aside className="sidenav">
       <div className="sidenav-brand">
@@ -70,6 +76,14 @@ function SideNav({ active, onSelect }: { active: Section; onSelect: (s: Section)
           </button>
         ))}
       </nav>
+
+      <div className="sidenav-foot">
+        {user?.email && <p className="sidenav-email">{user.email}</p>}
+        <button type="button" className="signout-btn" onClick={signOut}>
+          <Icon name="lock" size={16} />
+          Sign out
+        </button>
+      </div>
     </aside>
   )
 }
