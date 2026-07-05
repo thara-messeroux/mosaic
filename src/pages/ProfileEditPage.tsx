@@ -4,6 +4,7 @@ import { INTENTS, VALUE_OPTIONS, CONNECTION_STYLES } from '../data/members'
 import { Icon } from '../components/Icon'
 import { TopBar } from '../components/TopBar'
 import { ImageWithFallback } from '../components/ImageWithFallback'
+import { ProfileCard } from '../components/ProfileCard'
 import {
   Field,
   TextInput,
@@ -11,6 +12,7 @@ import {
   SectionLabel,
   SelectableChip,
   PrimaryButton,
+  SecondaryButton,
 } from '../components/Primitives'
 import { useAuth } from '../state/AuthProvider'
 import { useToast } from '../components/Toast'
@@ -19,8 +21,10 @@ import {
   fetchMyProfile,
   saveMyProfile,
   uploadProfilePhoto,
+  PROFILE_PROMPT_QUESTION,
   type ProfileForm,
 } from '../lib/profiles'
+import type { Member } from '../data/members'
 
 const MAX_PHOTO_BYTES = 5 * 1024 * 1024 // 5 MB
 
@@ -43,6 +47,9 @@ function ProfileEditPage({
   const [reloadKey, setReloadKey] = useState(0)
   const [existingId, setExistingId] = useState<string | null>(null)
   const [form, setForm] = useState<ProfileForm>(emptyProfileForm)
+  // The profile as actually saved — what the preview shows (not unsaved edits).
+  const [savedForm, setSavedForm] = useState<ProfileForm | null>(null)
+  const [mode, setMode] = useState<'edit' | 'preview'>('edit')
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -59,9 +66,11 @@ function ProfileEditPage({
         if (result) {
           setExistingId(result.id)
           setForm(result.form)
+          setSavedForm(result.form)
         } else {
           setExistingId(null)
           setForm(emptyProfileForm)
+          setSavedForm(null)
         }
         setLoad('ready')
       })
@@ -144,6 +153,7 @@ function ProfileEditPage({
     try {
       const id = await saveMyProfile(existingId, userId, form)
       setExistingId(id)
+      setSavedForm(form) // the preview reflects what was just saved
       onProfileSaved?.() // completes first-run onboarding in this session
       toast({ title: 'Profile saved', description: 'Your space feels a little more like you.' })
       onNavigate('discover')
@@ -181,6 +191,11 @@ function ProfileEditPage({
         </main>
       </div>
     )
+  }
+
+  // "Preview profile" shows the saved profile as others see it.
+  if (mode === 'preview') {
+    return <ProfilePreview savedForm={savedForm} onBack={() => setMode('edit')} />
   }
 
   // The image to show: local preview (while uploading) → saved photo → placeholder.
@@ -342,9 +357,15 @@ function ProfileEditPage({
           </p>
         )}
 
-        <PrimaryButton type="submit" disabled={!canSave}>
-          {saving ? 'Saving…' : 'Save profile'}
-        </PrimaryButton>
+        <div className="btn-row">
+          <SecondaryButton type="button" onClick={() => setMode('preview')}>
+            <Icon name="user" size={18} />
+            Preview profile
+          </SecondaryButton>
+          <PrimaryButton type="submit" disabled={!canSave}>
+            {saving ? 'Saving…' : 'Save profile'}
+          </PrimaryButton>
+        </div>
       </form>
 
       <div className="wrap account-foot">
@@ -358,6 +379,61 @@ function ProfileEditPage({
           Sign out
         </button>
       </div>
+    </div>
+  )
+}
+
+// Maps the signed-in user's saved form into a Member so we can reuse the exact
+// Profile Detail card. The Connection Lens shows preview-appropriate copy.
+function formToMember(form: ProfileForm): Member {
+  const age = parseInt(form.age, 10)
+  return {
+    id: 'me',
+    firstName: form.firstName || 'You',
+    age: Number.isFinite(age) ? age : 0,
+    city: form.city,
+    country: form.country,
+    originallyFrom: form.originallyFrom,
+    intent: form.intent,
+    values: form.values,
+    connectionStyle: form.connectionStyle,
+    prompt: { question: PROFILE_PROMPT_QUESTION, answer: form.prompt },
+    lens: 'When someone views your profile, Mosaic highlights values you may share.',
+    photo: form.photoUrl ?? '',
+  }
+}
+
+// Read-only preview of the saved profile, reusing ProfileCard. Handles the
+// "nothing saved yet" case gracefully.
+function ProfilePreview({
+  savedForm,
+  onBack,
+}: {
+  savedForm: ProfileForm | null
+  onBack: () => void
+}) {
+  return (
+    <div>
+      <TopBar title="Profile preview" showBack onBack={onBack} />
+      <main className="wrap page-main">
+        <p className="muted small">This is how your profile appears to others.</p>
+
+        {savedForm ? (
+          <ProfileCard member={formToMember(savedForm)} />
+        ) : (
+          <div className="empty">
+            <h3 className="empty-title">Nothing to preview yet</h3>
+            <p className="empty-text">
+              Save your profile first, then come back to see how it looks to others.
+            </p>
+          </div>
+        )}
+
+        <SecondaryButton type="button" onClick={onBack}>
+          <Icon name="chevron-left" size={18} />
+          Back to editing
+        </SecondaryButton>
+      </main>
     </div>
   )
 }
