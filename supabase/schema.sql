@@ -162,7 +162,12 @@ create policy challenges_insert on public.challenges
 drop policy if exists challenges_delete on public.challenges;
 create policy challenges_delete on public.challenges
   for delete using (user_id = auth.uid());
--- (no update policy: the UI only creates/deletes, so updates stay denied)
+
+-- users may edit only their own non-sample challenges
+drop policy if exists challenges_update on public.challenges;
+create policy challenges_update on public.challenges
+  for update using (user_id = auth.uid() and not is_sample)
+  with check (user_id = auth.uid() and not is_sample);
 
 -- ---------- profile_decisions policies ----------
 drop policy if exists decisions_select on public.profile_decisions;
@@ -235,7 +240,10 @@ values
    '1 day'),
   (true, 'say-the-true-thing', 'Say the true thing', 'Honesty',
    'Practice sharing one honest feeling you''d normally keep to yourself.',
-   '3 days')
+   '3 days'),
+  (true, 'week-of-small-kindnesses', 'A week of small kindnesses', 'Kindness',
+   'Offer one small, unprompted kindness each day. Notice how it changes your week.',
+   '7 days')
 on conflict (slug) do nothing;
 
 -- ============================================================
