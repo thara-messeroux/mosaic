@@ -1128,6 +1128,31 @@
   flex: 1;
 }
 
+.pill-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Destructive action inside the inline delete confirmation. */
+.pill-btn.danger {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.pill-btn.danger:hover {
+  background: rgba(179, 80, 106, 0.08);
+}
+
+/* Inline delete-confirmation row. */
+.confirm-row {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.confirm-row > .small {
+  margin-right: auto;
+}
+
 /* ---------- Reflection editor ---------- */
 
 .guided {
