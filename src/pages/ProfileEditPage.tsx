@@ -16,6 +16,7 @@ import {
 } from '../components/Primitives'
 import { useAuth } from '../state/AuthProvider'
 import { useToast } from '../components/Toast'
+import { usePath, navigate, PROFILE_PATH, PROFILE_EDIT_PATH } from '../lib/routing'
 import {
   emptyProfileForm,
   fetchMyProfile,
@@ -43,13 +44,16 @@ function ProfileEditPage({
   const toast = useToast()
   const userId = user?.id
 
+  // The URL drives which view shows: /profile/edit → editor, /profile → preview.
+  const path = usePath()
+  const editRoute = path === PROFILE_EDIT_PATH
+
   const [load, setLoad] = useState<LoadState>('loading')
   const [reloadKey, setReloadKey] = useState(0)
   const [existingId, setExistingId] = useState<string | null>(null)
   const [form, setForm] = useState<ProfileForm>(emptyProfileForm)
   // The profile as actually saved — what the preview shows (not unsaved edits).
   const [savedForm, setSavedForm] = useState<ProfileForm | null>(null)
-  const [mode, setMode] = useState<'edit' | 'preview'>('edit')
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -156,7 +160,10 @@ function ProfileEditPage({
       setSavedForm(form) // the preview reflects what was just saved
       onProfileSaved?.() // completes first-run onboarding in this session
       toast({ title: 'Profile saved', description: 'Your space feels a little more like you.' })
-      onNavigate('discover')
+      // First-run onboarding lands on Discover; editing an existing profile
+      // returns to its preview.
+      if (onboarding) onNavigate('discover')
+      else navigate(PROFILE_PATH)
     } catch {
       setError("We couldn't save your profile. Please try again.")
     } finally {
@@ -164,7 +171,7 @@ function ProfileEditPage({
     }
   }
 
-  const title = onboarding ? 'Complete your profile' : 'Your profile'
+  const title = onboarding ? 'Complete your profile' : 'Edit profile'
 
   if (load === 'loading') {
     return (
@@ -193,9 +200,17 @@ function ProfileEditPage({
     )
   }
 
-  // "Preview profile" shows the saved profile as others see it.
-  if (mode === 'preview') {
-    return <ProfilePreview savedForm={savedForm} onBack={() => setMode('edit')} />
+  // /profile defaults to the saved preview; the editor lives at /profile/edit.
+  // First-run users (no savedForm) always get the editor below.
+  if (!editRoute && savedForm) {
+    return (
+      <ProfilePreview
+        savedForm={savedForm}
+        email={user?.email}
+        onEdit={() => navigate(PROFILE_EDIT_PATH)}
+        onSignOut={signOut}
+      />
+    )
   }
 
   // The image to show: local preview (while uploading) → saved photo → placeholder.
@@ -203,7 +218,8 @@ function ProfileEditPage({
 
   return (
     <div>
-      <TopBar title={title} />
+      {/* Back returns to the preview only when a saved profile exists. */}
+      <TopBar title={title} showBack={Boolean(savedForm)} onBack={() => navigate(PROFILE_PATH)} />
 
       <form onSubmit={save} className="wrap page-main">
         {onboarding && (
@@ -358,10 +374,13 @@ function ProfileEditPage({
         )}
 
         <div className="btn-row">
-          <SecondaryButton type="button" onClick={() => setMode('preview')}>
-            <Icon name="user" size={18} />
-            Preview profile
-          </SecondaryButton>
+          {/* Preview is only meaningful once a profile has been saved. */}
+          {savedForm && (
+            <SecondaryButton type="button" onClick={() => navigate(PROFILE_PATH)}>
+              <Icon name="user" size={18} />
+              Preview profile
+            </SecondaryButton>
+          )}
           <PrimaryButton type="submit" disabled={!canSave}>
             {saving ? 'Saving…' : 'Save profile'}
           </PrimaryButton>
@@ -403,37 +422,44 @@ function formToMember(form: ProfileForm): Member {
   }
 }
 
-// Read-only preview of the saved profile, reusing ProfileCard. Handles the
-// "nothing saved yet" case gracefully.
+// The default /profile view: read-only preview of the saved profile, reusing
+// ProfileCard, with an Edit action and sign out.
 function ProfilePreview({
   savedForm,
-  onBack,
+  email,
+  onEdit,
+  onSignOut,
 }: {
-  savedForm: ProfileForm | null
-  onBack: () => void
+  savedForm: ProfileForm
+  email?: string
+  onEdit: () => void
+  onSignOut: () => void
 }) {
   return (
     <div>
-      <TopBar title="Profile preview" showBack onBack={onBack} />
+      <TopBar title="Your profile" />
       <main className="wrap page-main">
         <p className="muted small">This is how your profile appears to others.</p>
 
-        {savedForm ? (
-          <ProfileCard member={formToMember(savedForm)} />
-        ) : (
-          <div className="empty">
-            <h3 className="empty-title">Nothing to preview yet</h3>
-            <p className="empty-text">
-              Save your profile first, then come back to see how it looks to others.
-            </p>
-          </div>
-        )}
+        <ProfileCard member={formToMember(savedForm)} />
 
-        <SecondaryButton type="button" onClick={onBack}>
-          <Icon name="chevron-left" size={18} />
-          Back to editing
-        </SecondaryButton>
+        <PrimaryButton onClick={onEdit}>
+          <Icon name="pencil" size={18} />
+          Edit profile
+        </PrimaryButton>
       </main>
+
+      <div className="wrap account-foot">
+        {email && (
+          <p className="muted small">
+            Signed in as <strong>{email}</strong>
+          </p>
+        )}
+        <button type="button" className="pill-btn" onClick={onSignOut}>
+          <Icon name="lock" size={16} />
+          Sign out
+        </button>
+      </div>
     </div>
   )
 }
