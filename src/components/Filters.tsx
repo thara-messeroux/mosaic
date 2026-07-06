@@ -4,7 +4,6 @@ import {
   INTENTS,
   CONNECTION_STYLES,
   VALUE_OPTIONS,
-  members,
   type Member,
 } from '../data/members'
 import { Icon } from './Icon'
@@ -54,9 +53,11 @@ export function matchesFilters(m: Member, f: FilterState): boolean {
 export function Filters({
   filters,
   setFilters,
+  profiles,
 }: {
   filters: FilterState
   setFilters: (f: FilterState) => void
+  profiles: Member[]
 }) {
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState<FilterState>(filters)
@@ -65,7 +66,8 @@ export function Filters({
   const selectedEntries = GROUPS.flatMap((g) =>
     filters[g.key].map((value) => ({ key: g.key, value }))
   )
-  const previewCount = members.filter((m) => matchesFilters(m, draft)).length
+  // Preview count reflects the currently available (undecided) profiles.
+  const previewCount = profiles.filter((m) => matchesFilters(m, draft)).length
 
   const openSheet = () => {
     setDraft(filters)

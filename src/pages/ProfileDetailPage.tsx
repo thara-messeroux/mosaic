@@ -1,39 +1,22 @@
-import { members } from '../data/members'
 import { Icon } from '../components/Icon'
 import { TopBar } from '../components/TopBar'
 import { ProfileCard } from '../components/ProfileCard'
 import { ActionBar } from '../components/ActionBar'
-import { PrimaryButton } from '../components/Primitives'
+import type { Member } from '../data/members'
 
-// Renders a single member looked up by id. DiscoverPage owns the selected id;
-// this page holds no copy of it.
+// Full profile view. DiscoverPage passes the selected member directly, so this
+// page holds no data lookup of its own.
 function ProfileDetailPage({
-  memberId,
+  member,
   onBack,
   onPass,
   onSave,
 }: {
-  memberId: string
+  member: Member
   onBack: () => void
   onPass: () => void
   onSave: () => void
 }) {
-  const member = members.find((m) => m.id === memberId)
-
-  if (!member) {
-    return (
-      <div>
-        <TopBar title="Profile" showBack onBack={onBack} />
-        <main className="wrap page-main center">
-          <p className="muted">This profile isn't available.</p>
-          <div className="narrow">
-            <PrimaryButton onClick={onBack}>Back to Discover</PrimaryButton>
-          </div>
-        </main>
-      </div>
-    )
-  }
-
   return (
     <div>
       <TopBar title={`${member.firstName}'s profile`} showBack onBack={onBack} />

@@ -193,7 +193,7 @@ values
    array['Curiosity','Kindness','Emotional honesty']::text[],
    'A friendship becomes something more when…',
    'we can be quiet together and still feel completely at ease — no performance, just presence.',
-   'https://images.unsplash.com/photo-1759854881701-2aa0dc64fc7d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080'),
+   'https://images.pexels.com/photos/29282975/pexels-photo-29282975.jpeg'),
   (true, 'diego', 'Diego', 34, 'Toronto', 'Canada', 'Brazil',
    'Open to romance, no rush', 'Warm and open',
    array['Playfulness','Loyalty','Growth']::text[],
