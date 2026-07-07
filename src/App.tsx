@@ -49,9 +49,9 @@ function LoggedOut() {
 // Signed-in: route first-time users (no profile row) to the Profile section.
 function SignedIn() {
   const { user } = useAuth()
-  const status = useHasProfile(user?.id)
+  const { status, markPresent } = useHasProfile(user?.id)
   if (status === 'loading') return <Splash />
-  return <AppShell firstRun={status === 'missing'} />
+  return <AppShell firstRun={status === 'missing'} onProfileSaved={markPresent} />
 }
 
 // Minimal Mosaic loading state.

@@ -4,11 +4,12 @@ import { useState, type ImgHTMLAttributes } from 'react'
 // remote Unsplash URLs).
 export function ImageWithFallback(props: ImgHTMLAttributes<HTMLImageElement>) {
   const [failed, setFailed] = useState(false)
-  const { alt, className, ...rest } = props
+  const { alt, className, src, ...rest } = props
 
-  if (failed) {
+  // No src (e.g. a profile with no photo yet) or a load error → soft placeholder.
+  if (failed || !src) {
     return <div className={className} aria-label={alt} role="img" />
   }
 
-  return <img {...rest} alt={alt} className={className} onError={() => setFailed(true)} />
+  return <img {...rest} src={src} alt={alt} className={className} onError={() => setFailed(true)} />
 }

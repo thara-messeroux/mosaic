@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect } from 'react'
 import { Icon } from './Icon'
 import { NAV_ITEMS, type Section } from './navigation'
 import { useAuth } from '../state/AuthProvider'
+import { usePath, pathToSection, sectionToPath, navigate, replacePath } from '../lib/routing'
 import DiscoverPage from '../pages/DiscoverPage'
 import ReflectionsPage from '../pages/ReflectionsPage'
 import ChallengesPage from '../pages/ChallengesPage'
@@ -9,17 +10,38 @@ import SamPage from '../pages/SamPage'
 import ProfileEditPage from '../pages/ProfileEditPage'
 
 // The persistent frame: desktop sidebar + mobile bottom nav around the active
-// section's page. Navigation is local state — no router.
+// section's page. The active section is derived from the URL (History API).
 // firstRun (no profile yet) opens on the Profile section for onboarding.
-function AppShell({ firstRun = false }: { firstRun?: boolean }) {
-  const [active, setActive] = useState<Section>(firstRun ? 'profile' : 'discover')
+function AppShell({
+  firstRun = false,
+  onProfileSaved,
+}: {
+  firstRun?: boolean
+  onProfileSaved?: () => void
+}) {
+  const path = usePath()
+  const matched = pathToSection(path)
+  const active: Section = matched ?? (firstRun ? 'profile' : 'discover')
+
+  // Normalize unknown/root paths (and send first-run users to /profile) without
+  // adding a Back step.
+  useEffect(() => {
+    if (!matched) replacePath(sectionToPath(active))
+  }, [matched, active])
+
+  const setActive = (section: Section) => navigate(sectionToPath(section))
 
   return (
     <div className="shell">
       <SideNav active={active} onSelect={setActive} />
       <div className="shell-main">
         <div className="shell-content">
-          <ActivePage active={active} onNavigate={setActive} firstRun={firstRun} />
+          <ActivePage
+            active={active}
+            onNavigate={setActive}
+            firstRun={firstRun}
+            onProfileSaved={onProfileSaved}
+          />
         </div>
         <BottomNav active={active} onSelect={setActive} />
       </div>
@@ -31,10 +53,12 @@ function ActivePage({
   active,
   onNavigate,
   firstRun,
+  onProfileSaved,
 }: {
   active: Section
   onNavigate: (s: Section) => void
   firstRun: boolean
+  onProfileSaved?: () => void
 }) {
   switch (active) {
     case 'discover':
@@ -46,7 +70,13 @@ function ActivePage({
     case 'sam':
       return <SamPage onNavigate={onNavigate} />
     case 'profile':
-      return <ProfileEditPage onNavigate={onNavigate} onboarding={firstRun} />
+      return (
+        <ProfileEditPage
+          onNavigate={onNavigate}
+          onboarding={firstRun}
+          onProfileSaved={onProfileSaved}
+        />
+      )
   }
 }
 

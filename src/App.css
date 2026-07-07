@@ -762,6 +762,62 @@
   line-height: 1.5;
 }
 
+/* Structured Connection Lens on reflection cards. */
+.lens-values {
+  margin-top: 0.6rem;
+}
+
+.lens-values-label {
+  margin-bottom: 0.4rem;
+  color: var(--plum-soft);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Lens-only value chips: a warm cream surface with deep plum text and a thin
+   muted-plum border, so they stand out from the blush Lens panel. Informational
+   and non-interactive. Does not affect the global .chip used elsewhere. */
+.lens-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(90, 58, 83, 0.35); /* muted plum-soft */
+  background: var(--card);
+  color: var(--plum);
+  font-size: 0.85rem;
+}
+
+.lens-disclaimer {
+  margin-top: 0.6rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.lens-generate {
+  margin-top: 0.25rem;
+  width: fit-content;
+}
+
+.lens-regen {
+  margin-top: 0.5rem;
+  gap: 0.35rem;
+}
+
+/* Sam's "thinking" bubble while an AI response is in flight. */
+.sam-typing {
+  color: var(--plum-soft);
+  font-style: italic;
+}
+
+/* "Continue with Sam" button inside a paused bubble. */
+.sam-continue {
+  margin-top: 0.6rem;
+}
+
 /* ---------- Action bar ---------- */
 
 /* Sticky wrapper keeps Pass / Save near the viewport bottom while the profile
@@ -1128,6 +1184,31 @@
   flex: 1;
 }
 
+.pill-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Destructive action inside the inline delete confirmation. */
+.pill-btn.danger {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.pill-btn.danger:hover {
+  background: rgba(179, 80, 106, 0.08);
+}
+
+/* Inline delete-confirmation row. */
+.confirm-row {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.confirm-row > .small {
+  margin-right: auto;
+}
+
 /* ---------- Reflection editor ---------- */
 
 .guided {
@@ -1255,6 +1336,48 @@
 
 .photo-btn:hover {
   background: var(--accent);
+}
+
+.photo-btn:focus-visible {
+  outline: 2px solid var(--plum);
+  outline-offset: 2px;
+}
+
+.photo-btn:disabled {
+  cursor: default;
+}
+
+/* The avatar fills the round button; overflow clips it to the circle. */
+.photo-btn {
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+}
+
+.photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Uploading overlay over the photo button. */
+.photo-uploading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(61, 36, 56, 0.5);
+  color: var(--ivory);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.photo-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
 }
 
 /* ---------- Future concepts ---------- */
