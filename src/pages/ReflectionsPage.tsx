@@ -5,6 +5,8 @@ import { TopBar } from '../components/TopBar'
 import { PrimaryButton } from '../components/Primitives'
 import { useAuth } from '../state/AuthProvider'
 import { useToast } from '../components/Toast'
+import { ReflectionLens } from '../components/ReflectionLens'
+import { generateLens, AiError } from '../lib/ai'
 import {
   fetchMyReflections,
   deleteReflection as deleteReflectionRow,
@@ -28,6 +30,7 @@ function ReflectionsPage({ onNavigate }: { onNavigate: (s: Section) => void }) {
   const [editor, setEditor] = useState<{ open: boolean; editing?: Reflection }>({ open: false })
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [generatingId, setGeneratingId] = useState<string | null>(null)
 
   useEffect(() => {
     if (!userId) return
@@ -63,6 +66,26 @@ function ReflectionsPage({ onNavigate }: { onNavigate: (s: Section) => void }) {
       toast({ title: "We couldn't delete that", description: 'Please try again.' })
     } finally {
       setDeletingId(null)
+    }
+  }
+
+  // Generate (or regenerate) a real AI Connection Lens for one saved reflection.
+  const generate = async (id: string) => {
+    if (generatingId) return // one at a time; avoids accidental repeat calls
+    setGeneratingId(id)
+    try {
+      await generateLens(id)
+      toast({ title: 'Connection Lens ready' })
+      reload()
+    } catch (e) {
+      // Prefer the function's friendly message (e.g. the daily limit).
+      if (e instanceof AiError && e.userMessage) {
+        toast({ title: e.userMessage })
+      } else {
+        toast({ title: "We couldn't generate a lens", description: 'Please try again.' })
+      }
+    } finally {
+      setGeneratingId(null)
     }
   }
 
@@ -129,11 +152,29 @@ function ReflectionsPage({ onNavigate }: { onNavigate: (s: Section) => void }) {
                 <p className="reflection-prompt">{r.prompt}</p>
                 <p className="reflection-body">{r.body}</p>
 
-                {r.lens && (
-                  <div className="lens-inline">
+                {r.lens ? (
+                  <>
+                    <ReflectionLens lens={r.lens} />
+                    <button
+                      type="button"
+                      className="link-btn lens-regen"
+                      onClick={() => generate(r.id)}
+                      disabled={generatingId === r.id}
+                    >
+                      <Icon name="rotate" size={14} />
+                      {generatingId === r.id ? 'Regenerating…' : 'Regenerate lens'}
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    className="pill-btn lens-generate"
+                    onClick={() => generate(r.id)}
+                    disabled={generatingId === r.id}
+                  >
                     <Icon name="sparkles" size={16} />
-                    <span>{r.lens}</span>
-                  </div>
+                    {generatingId === r.id ? 'Generating…' : 'Generate Connection Lens'}
+                  </button>
                 )}
 
                 {confirmingId === r.id ? (

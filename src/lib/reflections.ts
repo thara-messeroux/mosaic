@@ -1,35 +1,49 @@
 import { supabase } from './supabase'
+import type { Lens } from './ai'
 
-// A reflection as used by the UI.
+// A reflection as used by the UI. lens is the structured Connection Lens (from
+// the connection_lenses table), or null if one hasn't been generated yet.
 export interface Reflection {
   id: string
   prompt: string
   body: string
-  lens: string | null
+  lens: Lens | null
   createdAt: string
 }
 
-// A reflection row as returned by Supabase. The column names match the database schema.
+interface LensRow {
+  theme: string
+  values: string[]
+  prompt: string | null
+}
+
+// A reflection row as returned by Supabase, with its embedded lens (if any).
+// connection_lenses is one-to-one (reflection_id is unique), so PostgREST
+// returns a single object or null — not an array.
 interface ReflectionRow {
   id: string
   prompt: string
   body: string
-  lens: string | null
   created_at: string
+  connection_lenses: LensRow | LensRow[] | null
 }
 
-// Convert a Supabase reflection row to the UI-friendly Reflection interface.
 function rowToReflection(row: ReflectionRow): Reflection {
+  // Support both shapes: an object (one-to-one) or an array (defensive).
+  const cl = row.connection_lenses
+  const lensRow = Array.isArray(cl) ? cl[0] : cl
   return {
     id: row.id,
     prompt: row.prompt,
     body: row.body,
-    lens: row.lens,
+    lens: lensRow
+      ? { theme: lensRow.theme, values: lensRow.values, prompt: lensRow.prompt }
+      : null,
     createdAt: row.created_at,
   }
 }
 
-// e.g. "Jul 5, 2026"
+// e.g. "Jul 6, 2026"
 export function formatReflectionDate(iso: string): string {
   return new Date(iso).toLocaleDateString('en-US', {
     month: 'short',
@@ -38,7 +52,8 @@ export function formatReflectionDate(iso: string): string {
   })
 }
 
-const COLUMNS = 'id, prompt, body, lens, created_at'
+// Reflection columns plus the embedded connection_lenses row (one-to-one).
+const COLUMNS = 'id, prompt, body, created_at, connection_lenses(theme, values, prompt)'
 
 // Newest first. RLS also restricts this to the caller's own rows.
 export async function fetchMyReflections(userId: string): Promise<Reflection[]> {
@@ -55,7 +70,6 @@ export async function fetchMyReflections(userId: string): Promise<Reflection[]> 
 interface ReflectionInput {
   prompt: string
   body: string
-  lens: string | null
 }
 
 // RLS ensures a user can only insert their own row.

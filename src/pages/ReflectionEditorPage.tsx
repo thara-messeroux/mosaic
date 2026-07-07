@@ -3,7 +3,6 @@ import type { Section } from '../components/navigation'
 import { Icon } from '../components/Icon'
 import { TopBar } from '../components/TopBar'
 import { Field, TextArea, PrimaryButton, SecondaryButton } from '../components/Primitives'
-import { ConnectionLens } from '../components/ConnectionLens'
 import { useAuth } from '../state/AuthProvider'
 import { useToast } from '../components/Toast'
 import { createReflection, updateReflection, type Reflection } from '../lib/reflections'
@@ -16,14 +15,8 @@ const PROMPTS = [
   'What am I hoping to grow toward right now?',
 ]
 
-// Placeholder insight lines — NOT a real model. Real, secure AI arrives in Phase 4.
-const LENS_LINES = [
-  'This reflection leans on emotional safety and slow trust.',
-  "There's a gentle theme of curiosity and openness here.",
-  'You seem to value presence over performance.',
-]
-
 // Create or edit a reflection. `editing` is the existing row (undefined = new).
+// The AI Connection Lens is generated later from the saved reflection card.
 function ReflectionEditorPage({
   editing,
   onDone,
@@ -41,21 +34,11 @@ function ReflectionEditorPage({
 
   const [prompt, setPrompt] = useState(editing?.prompt ?? PROMPTS[0])
   const [body, setBody] = useState(editing?.body ?? '')
-  const [lens, setLens] = useState<string | null>(editing?.lens ?? null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const bodyValid = body.trim().length > 0
   const canSave = bodyValid && !saving
-
-  const generateLens = () => {
-    if (!bodyValid) {
-      toast({ title: 'Write a little first', description: 'The insight reflects on your own words.' })
-      return
-    }
-    setLens(LENS_LINES[Math.floor(Math.random() * LENS_LINES.length)])
-    toast({ title: 'Reflection insight ready' })
-  }
 
   const save = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -63,7 +46,7 @@ function ReflectionEditorPage({
     setSaving(true)
     setError(null)
     try {
-      const input = { prompt, body: body.trim(), lens }
+      const input = { prompt, body: body.trim() }
       if (isEdit && editing) {
         await updateReflection(editing.id, input)
       } else {
@@ -112,23 +95,17 @@ function ReflectionEditorPage({
           />
         </Field>
 
-        {lens && <ConnectionLens copy={lens} />}
-
         <div className="btn-row">
           <SecondaryButton type="button" onClick={() => onNavigate('sam')}>
             <Icon name="message" />
             Talk with Sam
           </SecondaryButton>
-          <SecondaryButton type="button" onClick={generateLens}>
-            <Icon name="sparkles" />
-            Preview reflection insight
-          </SecondaryButton>
         </div>
 
         <p className="note note-left">
           <Icon name="info" size={16} />
-          Reflection insight is a gentle preview, not real AI yet — secure AI arrives in a
-          later update. It does not provide relationship advice or make decisions for you.
+          After saving, you can generate an AI Connection Lens from your reflection — a
+          gentle reflection aid, not advice or diagnosis.
         </p>
 
         {error && (

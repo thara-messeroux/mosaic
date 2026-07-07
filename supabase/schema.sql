@@ -286,3 +286,63 @@ create policy profile_photos_delete on storage.objects
     bucket_id = 'profile-photos'
     and (storage.foldername(name))[1] = auth.uid()::text
   );
+
+-- ============================================================
+-- Phase 4: AI Connection Lens + Sam usage guard
+-- ============================================================
+
+-- ---------- connection_lenses (one structured lens per reflection) ----------
+create table if not exists public.connection_lenses (
+  id            uuid primary key default gen_random_uuid(),
+  reflection_id uuid not null references public.reflections(id) on delete cascade,
+  user_id       uuid not null references auth.users(id) on delete cascade,
+  theme         text not null,
+  values        text[] not null default '{}',
+  prompt        text,
+  model         text,
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now(),
+  unique (reflection_id) -- regenerate updates the same row
+);
+create index if not exists connection_lenses_user_id_idx on public.connection_lenses(user_id);
+
+alter table public.connection_lenses enable row level security;
+
+grant select, insert, update, delete on public.connection_lenses to authenticated;
+
+drop policy if exists connection_lenses_select on public.connection_lenses;
+create policy connection_lenses_select on public.connection_lenses
+  for select using (user_id = auth.uid());
+
+drop policy if exists connection_lenses_insert on public.connection_lenses;
+create policy connection_lenses_insert on public.connection_lenses
+  for insert with check (user_id = auth.uid());
+
+drop policy if exists connection_lenses_update on public.connection_lenses;
+create policy connection_lenses_update on public.connection_lenses
+  for update using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+drop policy if exists connection_lenses_delete on public.connection_lenses;
+create policy connection_lenses_delete on public.connection_lenses
+  for delete using (user_id = auth.uid());
+
+drop trigger if exists set_updated_at on public.connection_lenses;
+create trigger set_updated_at before update on public.connection_lenses
+  for each row execute function public.set_updated_at();
+
+-- ---------- ai_usage (per-user daily call counter) ----------
+-- Written only by the Edge Function via the service-role key. RLS is enabled
+-- with no client policies, so the browser can neither read nor write it.
+create table if not exists public.ai_usage (
+  user_id uuid not null references auth.users(id) on delete cascade,
+  day     date not null,
+  count   int not null default 0,
+  primary key (user_id, day)
+);
+
+alter table public.ai_usage enable row level security;
+
+-- The Edge Function's service-role client needs table access to count usage
+-- (service_role bypasses RLS but still requires the grant). No grants to
+-- anon/authenticated, so the browser has zero access.
+grant select, insert, update on public.ai_usage to service_role;
