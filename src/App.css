@@ -501,9 +501,10 @@
   width: 2.75rem;
   height: 2.75rem;
   margin-left: auto;
+  padding: 0; /* removes the default button padding that showed a cream inset ring */
   overflow: hidden;
   border: 1px solid var(--border);
-  border-radius: var(--radius-pill);
+  border-radius: 50%;
   background: var(--blush-soft);
   color: var(--plum);
   cursor: pointer;
