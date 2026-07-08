@@ -1832,3 +1832,16 @@
   font-size: 0.9rem;
   line-height: 1.55;
 }
+
+/* ---------- Mobile content gutters ---------- */
+/* Below the content column's max-width, .wrap fills the viewport, so its
+   horizontal padding must be re-asserted here: .page-main's `padding` shorthand
+   otherwise resets left/right to 0, leaving content flush to the screen edges.
+   Uses the same token as the header and the full-bleed action bar
+   (var(--space-4)) so content stays aligned and .sticky-actions reaches the
+   edges without overflow. Desktop/tablet (wider than 42rem) are unaffected. */
+@media (max-width: 42rem) {
+  .wrap {
+    padding-inline: var(--space-4);
+  }
+}
